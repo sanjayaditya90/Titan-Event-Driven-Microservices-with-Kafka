@@ -1,0 +1,5 @@
+package com.titan.payment.service;
+
+public class PaymentService {
+
+}

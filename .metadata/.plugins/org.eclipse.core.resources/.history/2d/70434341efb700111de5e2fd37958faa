@@ -1,0 +1,5 @@
+package com.titan.notification.response;
+
+public class NotificationResponse {
+
+}

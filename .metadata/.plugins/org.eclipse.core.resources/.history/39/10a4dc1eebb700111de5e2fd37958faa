@@ -1,0 +1,9 @@
+package com.titan.notification.repository;
+
+import org.springframework.data.repository.CrudRepository;
+
+import com.titan.notification.event.NotificationProcessEvent;
+
+public interface NotificationProcessedEventRepository extends CrudRepository<NotificationProcessEvent, Long>{
+
+}

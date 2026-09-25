@@ -1,0 +1,51 @@
+package com.titan.payment.service;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.titan.payment.entity.OrderCreatedEntity;
+import com.titan.payment.entity.PaymentProcessEvent;
+import com.titan.payment.processor.PaymentProcessor;
+import com.titan.payment.repository.PaymentProcessedEventRepository;
+import com.titan.payment.response.PaymentResponse;
+
+@Service
+public class PaymentService {
+	private final List<PaymentProcessor> processors;
+	private final PaymentProcessedEventRepository paymentProcessedEventRepository;
+
+	public PaymentService(List<PaymentProcessor> processors,
+			PaymentProcessedEventRepository paymentProcessedEventRepository) {
+
+		this.processors = processors;
+		this.paymentProcessedEventRepository = paymentProcessedEventRepository;
+	}
+
+	public PaymentResponse process(OrderCreatedEntity event) {
+		System.out.println("inside the paymentService.process");
+		String eventId = event.getEventId();
+
+		// 1. Check whether event was already processed
+		if (paymentProcessedEventRepository.existsById(eventId)) {
+			System.out.println("Duplicate event received: " + eventId);
+			return null;
+		}
+
+		System.out.println("Before finding payment processor finder");
+		// 2. Find appropriate payment processor
+		PaymentProcessor processor = processors.stream().filter(p -> p.supports(event.getPaymentMethod())).findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Unsupported payment method: " + event.getPaymentMethod()));
+
+		System.out.println("before payment processor");
+		// 3. Process payment
+		PaymentResponse response = processor.processPayment(event);
+
+		System.out.println("Before saving the event into PaymentProcessEvent table");
+		// 4. Mark event as processed only after successful processing
+		paymentProcessedEventRepository.save(new PaymentProcessEvent(eventId));
+
+		return response;
+
+	}
+}

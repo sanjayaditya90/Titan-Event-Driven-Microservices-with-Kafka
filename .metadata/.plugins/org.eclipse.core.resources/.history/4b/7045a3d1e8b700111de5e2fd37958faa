@@ -1,0 +1,12 @@
+ package com.titan.notification.service;
+
+import com.titan.notification.event.OrderCreatedEvent;
+import com.titan.notification.response.NotificationResponse;
+
+public class NotificationService {
+
+	public static NotificationResponse process(OrderCreatedEvent event) {
+		
+	}
+
+}

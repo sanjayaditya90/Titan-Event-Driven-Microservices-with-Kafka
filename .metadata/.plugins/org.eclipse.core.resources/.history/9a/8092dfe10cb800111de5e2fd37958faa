@@ -1,0 +1,5 @@
+package com.titan.devlivery.repository;
+
+public interface DeliveryRepository {
+
+}

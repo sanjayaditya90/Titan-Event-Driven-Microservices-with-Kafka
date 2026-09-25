@@ -1,0 +1,25 @@
+package com.titan.payment.processor;
+
+import org.springframework.stereotype.Service;
+
+import com.titan.payment.event.OrderCreatedEvent;
+import com.titan.payment.response.PaymentResponse;
+
+@Service
+public class CardPaymentProcessor implements PaymentProcessor {
+
+	@Override
+	public PaymentResponse processPayment(OrderCreatedEvent event) {
+		if (event.getAmount() <= 0) {
+			throw new RuntimeException("Invalid payment amount");
+		}
+		System.out.println("Processing CARD payment for Order No : " + event.getOrderNo() + " Amount : " + event.getAmount());
+		return new PaymentResponse(event.getOrderNo(), "SUCCESS");
+	}
+
+	@Override
+	public boolean supports(String paymentMethod) {
+		return "CARD".equalsIgnoreCase(paymentMethod);
+	}
+
+}

@@ -1,0 +1,65 @@
+package com.titan.kafka.notification.service;
+
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
+
+import com.titan.notification.event.OrderCreatedEvent;
+import com.titan.notification.event.PaymentCreatedEvent;
+import com.titan.notification.service.NotificationService;
+
+import tools.jackson.databind.ObjectMapper;
+
+@Service
+public class NotificationConsumer {
+
+	private final NotificationService notificationService;
+	private final ObjectMapper objectMapper;
+	
+	
+	public NotificationConsumer(NotificationService notificationService, ObjectMapper objectMapper) {
+		this.notificationService = notificationService;
+		this.objectMapper = objectMapper;
+	}
+	
+	@KafkaListener(topics = "order-created", groupId = "OS2")
+	public void consumeOrderCreated(String message) {
+		OrderCreatedEvent event = objToOrderEvent(message);
+
+		System.out.println("Event Id : " + event.getEventId());
+		System.out.println("Order No : " + event.getOrderNo());
+		System.out.println("Mobile No : " + event.getMobile());
+		System.out.println("Amount : " + event.getAmount());
+		System.out.println("Email : " + event.getEmail());
+
+		String response = notificationService.process(event);
+
+		if (response != null) {
+			System.out.println("Notification status: " + response);
+		}
+	}
+	
+	@KafkaListener(topics = "payment-success", groupId = "PS1")
+	public void consumePaymentSuccess(String message) {
+		PaymentCreatedEvent event = objToOrderEvent(message);
+
+		System.out.println("Event Id : " + event.getEventId());
+		System.out.println("Order No : " + event.getOrderNo());
+		System.out.println("Mobile No : " + event.getMobileNo());
+		System.out.println("Amount : " + event.getAmount());
+		System.out.println("Email : " + event.getEmail());
+		System.out.println("Payment Mode : " + event.getPaymentMethod());
+		System.out.println("Payment Id : " + event.getPaymentId());
+		System.out.println("Payment Status : " + event.getPaymentStatus());
+
+		String response = notificationService.process(event);
+
+		if (response != null) {
+			System.out.println("Notification status: " + response);
+		}
+	}
+
+	private PaymentCreatedEvent objToOrderEvent(String message) {
+		return objectMapper.readValue(message, PaymentCreatedEvent.class);
+	}
+
+}

@@ -1,0 +1,5 @@
+package com.titan.kafka.notofication.service;
+
+public class NotificationConsumer {
+
+}

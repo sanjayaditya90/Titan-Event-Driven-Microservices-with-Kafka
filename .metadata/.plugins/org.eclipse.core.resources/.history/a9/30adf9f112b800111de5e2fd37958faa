@@ -1,0 +1,5 @@
+package com.titan.kafka.devlivery.config;
+
+public class KafkaConsumerConfig {
+
+}

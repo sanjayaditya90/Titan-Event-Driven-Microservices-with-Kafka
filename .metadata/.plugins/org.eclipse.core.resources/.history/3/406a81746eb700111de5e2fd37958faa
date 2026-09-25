@@ -1,0 +1,79 @@
+package com.titan.order.response;
+
+import java.util.List;
+
+public class OrderResponse {
+	private String orderNo;
+	private String customerId;
+	private String customerName;
+	private double totalAmount;
+	private String deliveryAddress;
+	private String status;
+	private String paymentMethod;
+	private List<OrderItemResponse> orderItemResponse;
+
+	public String getOrderNo() {
+		return orderNo;
+	}
+
+	public void setOrderNo(String orderNo) {
+		this.orderNo = orderNo;
+	}
+
+	public String getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(String customerId) {
+		this.customerId = customerId;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
+	public double getTotalAmount() {
+		return totalAmount;
+	}
+
+	public void setTotalAmount(double totalAmount) {
+		this.totalAmount = totalAmount;
+	}
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+
+	public List<OrderItemResponse> getOrderItemResponse() {
+		return orderItemResponse;
+	}
+
+	public void setOrderItemResponse(List<OrderItemResponse> orderItemResponse) {
+		this.orderItemResponse = orderItemResponse;
+	}
+
+	public String getPaymentMethod() {
+		return paymentMethod;
+	}
+
+	public void setPaymentMethod(String paymentMethod) {
+		this.paymentMethod = paymentMethod;
+	}
+
+	public String getDeliveryAddress() {
+		return deliveryAddress;
+	}
+
+	public void setDeliveryAddress(String deliveryAddress) {
+		this.deliveryAddress = deliveryAddress;
+	}
+
+}

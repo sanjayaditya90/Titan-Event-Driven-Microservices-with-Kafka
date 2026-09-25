@@ -1,0 +1,91 @@
+package com.titan.devlivery.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.titan.devlivery.event.DeliveryProcessEvent;
+import com.titan.devlivery.event.PaymentCreatedEvent;
+import com.titan.devlivery.repository.DeliveryProcessedEventRepository;
+import com.titan.kafka.devlivery.service.DeliveryProducer;
+
+import tools.jackson.databind.ObjectMapper;
+
+public class DeliveryService {
+	private final DeliveryProcessedEventRepository deliveryProcessedEventRepository;
+	private final ObjectMapper objectMapper;
+
+	@Autowired
+	DeliveryProducer deliveryProducer;
+
+	public DeliveryService(DeliveryProcessedEventRepository deliveryProcessedEventRepository,
+			ObjectMapper objectMapper) {
+		super();
+		this.deliveryProcessedEventRepository = deliveryProcessedEventRepository;
+		this.objectMapper = objectMapper;
+	}
+
+	public void process(PaymentCreatedEvent event) {
+		String eventId = event.getEventId();
+
+		// 1. Check whether event was already processed
+		if (deliveryProcessedEventRepository.existsById(eventId)) {
+			System.out.println("Duplicate Delivery event received: " + eventId);
+			return;
+		}
+
+		// 2. Process Delivery
+		deliveryProcessor(event);
+
+		// 3. Mark event as processed only after successful processing
+		deliveryProcessedEventRepository.save(new DeliveryProcessEvent(eventId));
+	}
+
+	private void deliveryProcessor(PaymentCreatedEvent event) {
+
+		System.out.println("------------------------------------------");
+
+		String[] orderNo = event.getOrderNo().split("-");
+
+		int id = Integer.parseInt(orderNo[1]);
+		String orderStatus = getStatus(id);
+		System.out.println("Delivery Status : " + orderStatus);
+		System.out.println("Order No : " + event.getOrderNo());
+		System.out.println("Amount : " + event.getAmount());
+		System.out.println("Mobile : " + event.getMobileNo());
+		System.out.println("Payment Mode : " + event.getPaymentMethod());
+		System.out.println("Payment Status : " + event.getPaymentStatus());
+		System.out.println("Delivery Address : " + event.getDeliveryAddress());
+		System.out.println("---------------------------------------------");
+
+		String topic = null;
+		if (orderStatus.equalsIgnoreCase("In-Transit")) {
+			topic = "DELIVERY_CREATED";
+		} else if (orderStatus.equalsIgnoreCase("Out for delivery")) {
+			topic = "DELIVERY_OUT_FOR_DELIVERY";
+		} else if (orderStatus.equalsIgnoreCase("Order delivered")) {
+			topic = "ORDER_DELIVERED";
+		}
+
+		String key = event.getOrderNo();
+		String data = objToJson(event);
+		deliveryProducer.writeDeliveryMessage(topic, key, data);
+
+	}
+
+	private String objToJson(PaymentCreatedEvent event) {
+		return objectMapper.writeValueAsString(event);
+	}
+
+	private String getStatus(int id) {
+		if (id % 3 == 0) {
+			return "In-Transit";
+		} else if (id % 7 == 0) {
+			return "Out for delivery";
+		} else if (id % 11 == 0) {
+			return "Order delivered";
+		} else {
+			return "Order Placed";
+		}
+
+	}
+
+}

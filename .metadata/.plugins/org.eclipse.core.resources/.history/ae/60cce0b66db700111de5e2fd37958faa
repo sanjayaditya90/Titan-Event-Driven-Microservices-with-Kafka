@@ -1,0 +1,5 @@
+package com.titan.order.event;
+
+public class OrderCreatedEvent {
+
+}

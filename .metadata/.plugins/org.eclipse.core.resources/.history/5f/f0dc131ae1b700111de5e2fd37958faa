@@ -1,0 +1,5 @@
+package com.titan.kafka.payment.service;
+
+public class PaymentProducer {
+
+}

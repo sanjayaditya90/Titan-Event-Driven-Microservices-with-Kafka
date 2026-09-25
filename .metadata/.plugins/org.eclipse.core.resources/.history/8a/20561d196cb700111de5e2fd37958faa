@@ -1,0 +1,14 @@
+package com.titan.payment.response;
+
+public class PaymentResponse {
+
+	private String orderNo;
+	private String status;
+
+	public PaymentResponse(String orderNo, String status) {
+		super();
+		this.orderNo = orderNo;
+		this.status = status;
+	}
+
+}

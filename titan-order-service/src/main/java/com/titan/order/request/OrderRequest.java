@@ -1,0 +1,72 @@
+package com.titan.order.request;
+
+import java.util.List;
+
+public class OrderRequest {
+
+	private String customerId;
+	private String customerName;
+	private String deliveryAddress;
+	private String paymentMethod;
+	private String email;
+	private String mobileNo;
+
+	private List<OrderItemRequest> orderItemRequests;
+
+	public String getCustomerId() {
+		return customerId;
+	}
+
+	public void setCustomerId(String customerId) {
+		this.customerId = customerId;
+	}
+
+	public String getCustomerName() {
+		return customerName;
+	}
+
+	public void setCustomerName(String customerName) {
+		this.customerName = customerName;
+	}
+
+	public String getDeliveryAddress() {
+		return deliveryAddress;
+	}
+
+	public void setDeliveryAddress(String deliveryAddress) {
+		this.deliveryAddress = deliveryAddress;
+	}
+
+	public List<OrderItemRequest> getOrderItemRequests() {
+		return orderItemRequests;
+	}
+
+	public void setOrderItemRequests(List<OrderItemRequest> orderItemRequests) {
+		this.orderItemRequests = orderItemRequests;
+	}
+
+	public String getPaymentMethod() {
+		return paymentMethod;
+	}
+
+	public void setPaymentMethod(String paymentMethod) {
+		this.paymentMethod = paymentMethod;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
+	}
+
+	public String getMobileNo() {
+		return mobileNo;
+	}
+
+	public void setMobileNo(String mobileNo) {
+		this.mobileNo = mobileNo;
+	}
+
+}

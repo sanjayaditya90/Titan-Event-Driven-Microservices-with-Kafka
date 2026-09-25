@@ -1,0 +1,33 @@
+package com.titan.notification.service;
+
+import java.util.List;
+
+import com.titan.notification.event.NotificationProcessEvent;
+import com.titan.notification.event.OrderCreatedEvent;
+import com.titan.notification.processor.NotificationProcessor;
+import com.titan.notification.repository.NotificationProcessedEventRepository;
+import com.titan.notification.response.NotificationResponse;
+
+
+public class NotificationService {
+
+	private final List<NotificationProcessor> processors;
+	private final NotificationProcessedEventRepository notificationProcessedEventRepository;
+
+	public NotificationService(List<NotificationProcessor> processors,
+			NotificationProcessedEventRepository notificationProcessedEventRepository) {
+		super();
+		this.processors = processors;
+		this.notificationProcessedEventRepository = notificationProcessedEventRepository;
+	}
+
+
+
+	public void  process(OrderCreatedEvent event) {
+		String eventId = event.getEventId();
+	
+		notificationProcessedEventRepository.save(new NotificationProcessEvent(eventId));
+
+	}
+
+}

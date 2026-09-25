@@ -1,0 +1,5 @@
+package com.titan.kafka.producer.service;
+
+public class KafkaProducerService {
+
+}

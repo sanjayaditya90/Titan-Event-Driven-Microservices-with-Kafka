@@ -1,0 +1,5 @@
+package com.titan.payment.config;
+
+public class KafkaConsumerConfig {
+
+}

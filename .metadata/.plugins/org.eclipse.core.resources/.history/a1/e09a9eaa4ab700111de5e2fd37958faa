@@ -1,0 +1,5 @@
+package com.titan.order.response;
+
+public class OrderResponse {
+
+}

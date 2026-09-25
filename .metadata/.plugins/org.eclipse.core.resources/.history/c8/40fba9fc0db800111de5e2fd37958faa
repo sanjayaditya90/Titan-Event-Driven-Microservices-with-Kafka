@@ -1,0 +1,12 @@
+package com.titan.devlivery.service;
+
+import com.titan.devlivery.event.PaymentCreatedEvent;
+
+public class DeliveryService {
+
+	public void process(PaymentCreatedEvent event) {
+		// TODO Auto-generated method stub
+		
+	}
+
+}

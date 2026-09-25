@@ -1,0 +1,8 @@
+package com.titan.order.entity;
+
+import jakarta.persistence.Entity;
+
+@Entity(name = "titan_order")
+public class OrderEntity {
+
+}

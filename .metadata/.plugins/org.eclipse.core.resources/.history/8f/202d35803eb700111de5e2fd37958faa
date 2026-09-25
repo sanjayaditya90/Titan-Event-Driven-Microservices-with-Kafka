@@ -1,0 +1,5 @@
+package com.titan.order.entity;
+
+public class OrderEntity {
+
+}

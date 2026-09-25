@@ -1,0 +1,9 @@
+package com.titan.payment.repository;
+
+import org.springframework.data.repository.CrudRepository;
+
+import com.titan.payment.entity.PaymentProcessEvent;
+
+public interface PaymentProcessedEventRepository  implements CrudRepository<PaymentProcessEvent, String>{
+
+}

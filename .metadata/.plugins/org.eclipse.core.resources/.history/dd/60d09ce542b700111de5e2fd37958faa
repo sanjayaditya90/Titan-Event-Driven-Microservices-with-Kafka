@@ -1,0 +1,10 @@
+package com.titan.order.request;
+
+public class OrderRequest {
+
+	private String customerId;
+	private String customerName;
+	private int quantity;
+	private double amount;
+	private String deliveryAddress;
+}

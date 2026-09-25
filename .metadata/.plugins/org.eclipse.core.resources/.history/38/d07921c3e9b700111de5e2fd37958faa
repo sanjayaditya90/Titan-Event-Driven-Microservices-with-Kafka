@@ -1,0 +1,5 @@
+package com.titan.notification.repository;
+
+public class NotificationProcessedEventRepository {
+
+}

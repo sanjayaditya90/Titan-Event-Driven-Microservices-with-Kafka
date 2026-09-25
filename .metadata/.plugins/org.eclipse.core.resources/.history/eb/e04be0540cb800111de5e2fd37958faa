@@ -1,0 +1,5 @@
+package com.titan.devlivery.event;
+
+public class DeliveryProcessEvent {
+
+}

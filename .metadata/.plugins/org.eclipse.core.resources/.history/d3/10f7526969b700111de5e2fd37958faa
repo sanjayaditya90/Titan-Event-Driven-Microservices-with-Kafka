@@ -1,0 +1,13 @@
+package com.titan.payment.processor;
+
+import org.springframework.stereotype.Service;
+
+import com.titan.payment.entity.OrderCreatedEntity;
+import com.titan.payment.response.PaymentResponse;
+
+@Service
+public interface PaymentProcessor{
+	 PaymentResponse processPayment(OrderCreatedEntity event);
+
+	    boolean supports(String paymentMethod);
+}

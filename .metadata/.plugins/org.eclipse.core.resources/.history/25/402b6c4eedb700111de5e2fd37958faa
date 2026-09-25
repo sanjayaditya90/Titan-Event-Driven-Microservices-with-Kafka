@@ -1,0 +1,5 @@
+package com.titan.notification.event;
+
+public class NotificationProcessEvent {
+
+}

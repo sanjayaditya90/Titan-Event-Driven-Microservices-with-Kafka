@@ -1,0 +1,8 @@
+package com.titan.order.event;
+
+public class OrderCreatedEvent {
+	private String eventId;
+    private String orderNo;
+    private double amount;
+    private String paymentMethod;
+}

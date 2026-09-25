@@ -1,0 +1,44 @@
+package com.titan.order.service;
+
+import java.util.Random;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.titan.kafka.producer.service.KafkaProducerService;
+import com.titan.order.entity.OrderEntity;
+import com.titan.order.repository.OrderRepository;
+import com.titan.order.request.OrderRequest;
+import com.titan.order.response.OrderResponse;
+
+@Service
+public class OrderService {
+
+	@Autowired
+	OrderRepository orderRepository;
+	
+	@Autowired
+	KafkaProducerService kafkaProducerService;
+
+	public OrderResponse creatOrder(OrderRequest orderRequest) {
+		OrderEntity entity = createOrderEntity(orderRequest);
+		
+		OrderEntity entityResponse = null;
+		return null;
+	}
+
+	private OrderEntity createOrderEntity(OrderRequest orderRequest) {
+	OrderEntity entity = new OrderEntity();
+	entity.setCustomerId(orderRequest.getCustomerId());
+	entity.setCustomerName(orderRequest.getCustomerName());
+	entity.setDeliveryAddress(orderRequest.getDeliveryAddress());
+	entity.setOrderNo(getOrderNumber());
+		return null;
+	}
+
+	private String getOrderNumber() {
+		Random random = new Random();
+		int num = 1000000 + random.nextInt(9000000);
+		return "ORD-"+num;
+	}
+}

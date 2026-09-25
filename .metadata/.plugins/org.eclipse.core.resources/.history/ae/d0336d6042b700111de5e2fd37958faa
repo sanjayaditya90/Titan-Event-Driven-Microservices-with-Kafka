@@ -1,0 +1,20 @@
+package com.titan.order.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.titan.order.entity.OrderEntity;
+import com.titan.order.repository.OrderRepository;
+import com.titan.order.response.OrderResponse;
+
+@Service
+public class OrderService {
+
+	@Autowired
+	OrderRepository orderRepository;
+
+	public OrderResponse creatOrder(OrderEntity orderEntity) {
+		
+		return null;
+	}
+}

@@ -1,0 +1,24 @@
+package com.titan.order.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.titan.kafka.producer.service.KafkaProducerService;
+import com.titan.order.repository.OrderRepository;
+import com.titan.order.request.OrderRequest;
+import com.titan.order.response.OrderResponse;
+
+@Service
+public class OrderService {
+
+	@Autowired
+	OrderRepository orderRepository;
+	
+	@Autowired
+	KafkaProducerService kafkaProducerService;
+
+	public OrderResponse creatOrder(OrderRequest orderRequest) {
+		
+		return null;
+	}
+}

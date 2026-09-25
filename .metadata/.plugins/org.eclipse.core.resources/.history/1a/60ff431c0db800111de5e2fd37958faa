@@ -1,0 +1,9 @@
+package com.titan.devlivery.repository;
+
+import org.springframework.data.repository.CrudRepository;
+
+import com.titan.devlivery.event.DeliveryProcessEvent;
+
+public interface DeliveryRepository extends CrudRepository<DeliveryProcessEvent, String>{
+
+}

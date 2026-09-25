@@ -1,0 +1,33 @@
+package com.titan.kafka.payment.service;
+
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
+
+import com.titan.payment.entity.OrderCreatedEntity;
+import com.titan.payment.response.PaymentResponse;
+import com.titan.payment.service.PaymentService;
+
+@Service
+public class PaymentConsumer {
+
+	private final PaymentService paymentService;
+
+	public PaymentConsumer(PaymentService paymentService) {
+		this.paymentService = paymentService;
+	}
+
+	@KafkaListener(topics = "order-created", groupId = "payment-service")
+	public void consume(String message) {
+
+		OrderCreatedEntity event = objToOrderEvent(message);
+
+		PaymentResponse response = paymentService.process(event);
+
+		System.out.println("Payment status: " + response.getStatus());
+	}
+
+	private OrderCreatedEntity objToOrderEvent(String message) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+}

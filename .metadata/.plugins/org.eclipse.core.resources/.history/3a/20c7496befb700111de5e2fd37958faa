@@ -1,0 +1,45 @@
+package com.titan.notification.service;
+
+import java.util.List;
+
+import com.titan.notification.event.NotificationProcessEvent;
+import com.titan.notification.event.OrderCreatedEvent;
+import com.titan.notification.processor.EmailNotificationProcessor;
+import com.titan.notification.processor.NotificationProcessor;
+import com.titan.notification.processor.SMSNotificationProcessor;
+import com.titan.notification.repository.NotificationProcessedEventRepository;
+
+public class NotificationService {
+
+	private final List<NotificationProcessor> processors;
+	private final NotificationProcessedEventRepository notificationProcessedEventRepository;
+
+	public NotificationService(List<NotificationProcessor> processors,
+			NotificationProcessedEventRepository notificationProcessedEventRepository) {
+		super();
+		this.processors = processors;
+		this.notificationProcessedEventRepository = notificationProcessedEventRepository;
+	}
+
+	public void processOrderEvent(OrderCreatedEvent event) {
+		String eventId = event.getEventId();
+
+		if (notificationProcessedEventRepository.existsById(eventId)) {
+			System.out.println("Duplicate event received: " + eventId);
+			return;
+		}
+
+		// Send Email notification
+		NotificationProcessor emailProcessor = new EmailNotificationProcessor();
+		emailProcessor.sendNotification(event);
+
+		// Send sms notification
+		NotificationProcessor smsProcessor = new SMSNotificationProcessor();
+		smsProcessor.sendNotification(event);
+
+		// 4. Mark event as processed only after successful processing
+		notificationProcessedEventRepository.save(new NotificationProcessEvent(eventId));
+
+	}
+
+}

@@ -1,0 +1,5 @@
+package com.titan.payment.event;
+
+public class PaymentCreatedEvent {
+
+}

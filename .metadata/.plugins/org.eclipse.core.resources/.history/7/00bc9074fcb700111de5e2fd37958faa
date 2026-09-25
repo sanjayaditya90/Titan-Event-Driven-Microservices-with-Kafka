@@ -1,0 +1,148 @@
+package com.titan.order.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.titan.kafka.producer.service.OrderProducer;
+import com.titan.order.entity.OrderEntity;
+import com.titan.order.entity.OrderItemEntity;
+import com.titan.order.event.OrderCreatedEvent;
+import com.titan.order.repository.OrderRepository;
+import com.titan.order.request.OrderItemRequest;
+import com.titan.order.request.OrderRequest;
+import com.titan.order.response.OrderItemResponse;
+import com.titan.order.response.OrderResponse;
+
+import tools.jackson.databind.ObjectMapper;
+
+@Service
+public class OrderService {
+
+	@Autowired
+	OrderRepository orderRepository;
+
+	@Autowired
+	OrderProducer kafkaProducerService;
+	
+
+	//Titan Order creation  
+	public OrderResponse creatOrder(OrderRequest orderRequest) {
+		OrderEntity entity = createOrderEntity(orderRequest);
+
+		OrderEntity entityResponse = null;
+		try {
+			entityResponse = orderRepository.save(entity);
+		} catch (Exception e) {
+
+		}
+		OrderResponse response = createOrderResponse(entityResponse);
+
+		if (response.getStatus().equalsIgnoreCase("created")) {
+			OrderCreatedEvent orderCreatedEvent = createOrderEvent(response);
+			orderCreatedEvent.setPaymentMethod(orderRequest.getPaymentMethod());
+			orderCreatedEvent.setEmail(orderRequest.getEmail());
+			orderCreatedEvent.setMobileNo(orderRequest.getMobileNo());
+			orderCreatedEvent.setDeliveryAddress(orderRequest.getDeliveryAddress());
+			orderCreatedEvent.setEventName("Order");
+			String key = response.getOrderNo();
+			String data = objToJson(orderCreatedEvent);
+			kafkaProducerService.writeOrderMessage(data, key, data);
+		}
+		
+		return response;
+	}
+
+	private OrderCreatedEvent createOrderEvent(OrderResponse response) {
+		OrderCreatedEvent event = new OrderCreatedEvent();
+
+        event.setEventId(UUID.randomUUID().toString());
+        event.setOrderNo(response.getOrderNo());
+        event.setAmount(response.getTotalAmount());
+        
+		return event;
+	}
+
+	//Converting the Object to JSON
+	private String objToJson(OrderCreatedEvent orderCreatedEvent) {
+		ObjectMapper mapper = new ObjectMapper();
+		String data = mapper.writeValueAsString(orderCreatedEvent);
+		return data;
+	}
+
+	// Createing OrderResponse Object
+	private OrderResponse createOrderResponse(OrderEntity entityResponse) {
+		OrderResponse response = new OrderResponse();
+		response.setCustomerId(entityResponse.getCustomerId());
+		response.setCustomerName(entityResponse.getCustomerName());
+		response.setDeliveryAddress(entityResponse.getDeliveryAddress());
+		response.setOrderNo(entityResponse.getOrderNo());
+
+		// updating the status after order creation
+		if (entityResponse != null && entityResponse.getId() > 0) {
+			if (entityResponse.getId() % 15 != 0) {
+				String status = "Created";
+				orderRepository.updateStatus(status, entityResponse.getId());
+				response.setStatus(status);
+			} else if (entityResponse.getId() % 15 == 0) {
+				String status = "Failed";
+				orderRepository.updateStatus(status, entityResponse.getId());
+				response.setStatus(status);
+			}
+		}
+
+		double totalAmount = 0;
+		List<OrderItemResponse> itemList = new ArrayList<OrderItemResponse>();
+
+		//looping through each items
+		for (OrderItemEntity item : entityResponse.getOrderItemEntities()) {
+			OrderItemResponse product = new OrderItemResponse();
+			product.setProductId(item.getProductId());
+			product.setProductName(item.getProductName());
+			product.setQuantity(item.getQuantity());
+			product.setAmount(item.getAmount());
+			itemList.add(product);
+		}
+		response.setOrderItemResponse(itemList);
+		response.setTotalAmount(entityResponse.getTotalAmount());
+		return response;
+	}
+
+	//Creating the OrderEntity object
+	private OrderEntity createOrderEntity(OrderRequest orderRequest) {
+		OrderEntity entity = new OrderEntity();
+		entity.setCustomerId(orderRequest.getCustomerId());
+		entity.setCustomerName(orderRequest.getCustomerName());
+		entity.setDeliveryAddress(orderRequest.getDeliveryAddress());
+		entity.setOrderNo(getOrderNumber());
+
+		double totalAmount = 0;
+		List<OrderItemEntity> itemList = new ArrayList<OrderItemEntity>();
+
+		for (OrderItemRequest item : orderRequest.getOrderItemRequests()) {
+			OrderItemEntity product = new OrderItemEntity();
+			product.setProductId(item.getProductId());
+			product.setProductName(item.getProductName());
+			product.setQuantity(item.getQuantity());
+			product.setAmount(item.getAmount());
+			itemList.add(product);
+
+			double total = item.getQuantity() * item.getAmount();
+			totalAmount += total;
+		}
+		entity.setOrderItemEntities(itemList);
+		entity.setTotalAmount(totalAmount);
+		return entity;
+	}
+
+	//Generating the Order Number
+	private String getOrderNumber() {
+		Random random = new Random();
+		int num = 1000000 + random.nextInt(9000000);
+		return "ORD-" + num;
+	}
+}

@@ -1,0 +1,13 @@
+package com.titan.order.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.titan.order.repository.OrderRepository;
+
+@Service
+public class OrderService {
+
+	@Autowired
+	OrderRepository orderRepository;
+}

@@ -1,0 +1,115 @@
+package com.titan.payment.service;
+
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.titan.kafka.payment.service.PaymentProducer;
+import com.titan.payment.entity.PaymentEntity;
+import com.titan.payment.event.OrderCreatedEvent;
+import com.titan.payment.event.PaymentCreatedEvent;
+import com.titan.payment.event.PaymentProcessEvent;
+import com.titan.payment.processor.PaymentProcessor;
+import com.titan.payment.repository.PaymentProcessedEventRepository;
+import com.titan.payment.response.PaymentResponse;
+
+import tools.jackson.databind.ObjectMapper;
+
+@Service
+public class PaymentService {
+	private final List<PaymentProcessor> processors;
+	private final PaymentProcessedEventRepository paymentProcessedEventRepository;
+	private final ObjectMapper objectMapper;
+	
+	@Autowired
+	PaymentProducer paymentProducer;
+
+	public PaymentService(List<PaymentProcessor> processors,
+			PaymentProcessedEventRepository paymentProcessedEventRepository, ObjectMapper objectMapper,
+			PaymentProducer paymentProducer) {
+		super();
+		this.processors = processors;
+		this.paymentProcessedEventRepository = paymentProcessedEventRepository;
+		this.objectMapper = objectMapper;
+		this.paymentProducer = paymentProducer;
+	}
+
+	public PaymentResponse process(OrderCreatedEvent event) {
+		String eventId = event.getEventId();
+
+		// 1. Check whether event was already processed
+		if (paymentProcessedEventRepository.existsById(eventId)) {
+			System.out.println("Duplicate event received: " + eventId);
+			return null;
+		}
+
+		// 2. Find appropriate payment processor
+		PaymentProcessor processor = processors.stream().filter(p -> p.supports(event.getPaymentMethod())).findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Unsupported payment method: " + event.getPaymentMethod()));
+
+		// 3. Process payment
+		PaymentResponse response = processor.processPayment(event);
+
+		// 4. Mark event as processed only after successful processing
+		paymentProcessedEventRepository.save(new PaymentProcessEvent(eventId));
+		
+		PaymentEntity paymentResponse = createPaymentEntity(event);
+		paymentProcessedEventRepository.save(paymentResponse);
+		
+		if(response.getStatus().equalsIgnoreCase("Success")) {
+			PaymentCreatedEvent paymentCreatedEvent = createPaymentEvent(event);
+			paymentCreatedEvent.setPaymentStatus("PAYMENT_SUCCESS");
+			paymentCreatedEvent.setEventName("Payment");
+			
+			String key = response.getOrderNo();
+			String data = objToJson(paymentCreatedEvent);
+			paymentProducer.writePaymentMessage("payment-success", key, data);
+		} else if(response.getStatus().equalsIgnoreCase("Failed")) {
+			PaymentCreatedEvent paymentCreatedEvent = createPaymentEvent(event);
+			paymentCreatedEvent.setPaymentStatus("PAYMENT_FAILED");
+			
+			String key = response.getOrderNo();
+			String data = objToJson(paymentCreatedEvent);
+			paymentProducer.writePaymentMessage("payment-failed", key, data);
+		}
+
+		return response;
+
+	}
+
+	private PaymentEntity createPaymentEntity(OrderCreatedEvent event) {
+		PaymentEntity entity = new PaymentEntity();
+		entity.setPaymentTxnNo(getTransactionNumber());
+	}
+
+	private String objToJson(PaymentCreatedEvent paymentCreatedEvent) {
+		return objectMapper.writeValueAsString(paymentCreatedEvent);
+	}
+	
+	//creating the payment event
+	private PaymentCreatedEvent createPaymentEvent(OrderCreatedEvent orderCreatedEvent) {
+		PaymentCreatedEvent event = new PaymentCreatedEvent();
+
+		event.setEventId(UUID.randomUUID().toString());
+		event.setOrderNo(orderCreatedEvent.getOrderNo());
+		event.setAmount(orderCreatedEvent.getAmount());
+		event.setPaymentMethod(orderCreatedEvent.getPaymentMethod());
+		event.setEmail(orderCreatedEvent.getEmail());
+		event.setMobileNo(orderCreatedEvent.getMobileNo());
+		event.setDeliveryAddress(orderCreatedEvent.getDeliveryAddress());
+		event.setPaymentMethod(event.getPaymentMethod());
+		event.setPaymentId(event.getPaymentId());
+
+		return event;
+	}
+	
+	// Generating the Payment transaction Number
+		private String getTransactionNumber() {
+			Random random = new Random();
+			int num = 1000000 + random.nextInt(9000000);
+			return "TXN-" + num;
+		}
+}

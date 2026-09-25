@@ -1,0 +1,12 @@
+package com.titan.notification.processor;
+
+import com.titan.notification.event.OrderCreatedEvent;
+
+public class EmailNotificationProcessor implements NotificationProcessor{
+
+	@Override
+	public void sendNotification(OrderCreatedEvent event) {
+		System.out.println(" Confirmation Email : "+ event.getEmail()+" sent for Order : "+ event.getOrderNo());
+	}
+
+}

@@ -1,0 +1,8 @@
+package com.titan.order.request;
+
+public class OrderItemRequest {
+
+	private int productId;
+	private String productName;
+	private int quantity;
+}

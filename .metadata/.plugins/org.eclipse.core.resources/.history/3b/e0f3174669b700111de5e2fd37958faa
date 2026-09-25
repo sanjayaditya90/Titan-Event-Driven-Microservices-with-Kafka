@@ -1,0 +1,10 @@
+package com.titan.payment.entity;
+
+public class OrderCreatedEntity {
+
+	private String eventId;
+	private String orderNo;
+	private double amount;
+	private String paymentMethod;
+
+}

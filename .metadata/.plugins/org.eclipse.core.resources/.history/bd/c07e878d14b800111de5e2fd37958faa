@@ -1,0 +1,44 @@
+package com.titan.kafka.payment.service;
+
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.stereotype.Service;
+
+import com.titan.payment.event.OrderCreatedEvent;
+import com.titan.payment.response.PaymentResponse;
+import com.titan.payment.service.PaymentService;
+
+import tools.jackson.databind.ObjectMapper;
+
+@Service
+public class PaymentConsumer {
+
+	private final PaymentService paymentService;
+	private final ObjectMapper objectMapper;
+
+	public PaymentConsumer(PaymentService paymentService, ObjectMapper objectMapper) {
+
+		this.paymentService = paymentService;
+		this.objectMapper = objectMapper;
+	}
+
+	@KafkaListener(topics = "order-created", groupId = "OS1")
+	public void consume(String message) {
+
+		OrderCreatedEvent event = objToOrderEvent(message);
+
+		System.out.println("Event Id : " + event.getEventId());
+		System.out.println("Order No : " + event.getOrderNo());
+		System.out.println("Payment Mode : " + event.getPaymentMethod());
+		System.out.println("Amount : " + event.getAmount());
+
+		PaymentResponse response = paymentService.process(event);
+
+		if (response != null) {
+			System.out.println("Payment status: " + response.getStatus());
+		}
+	}
+
+	private OrderCreatedEvent objToOrderEvent(String message) {
+		return objectMapper.readValue(message, OrderCreatedEvent.class);
+	}
+}

@@ -1,0 +1,12 @@
+package com.titan.devlivery.event;
+
+public class PaymentCreatedEvent {
+	private String eventId;
+	private String eventName;
+	private String orderNo;
+	private double amount;
+	private String paymentMethod;
+	private String paymentStatus;
+	private String mobileNo;
+	private String deliveryAddress;
+}

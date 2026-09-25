@@ -1,0 +1,20 @@
+package com.titan.payment.processor;
+
+import com.titan.payment.entity.OrderCreatedEntity;
+import com.titan.payment.response.PaymentResponse;
+
+public class UpiPaymentProcessor implements PaymentProcessor{
+
+	@Override
+	public PaymentResponse processPayment(OrderCreatedEntity event) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public boolean supports(String paymentMethod) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+}

@@ -1,0 +1,20 @@
+package com.titan.kafka.producer.service;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.stereotype.Service;
+
+import com.titan.order.response.OrderResponse;
+
+@Service
+public class KafkaProducerService {
+	
+	@Autowired
+	KafkaTemplate<String, String> kafkaTemplate;
+
+	public void writeMessage(String _topic, String _key, String _data) {
+		kafkaTemplate.send(_topic, _key, _data);
+		
+	}
+
+}

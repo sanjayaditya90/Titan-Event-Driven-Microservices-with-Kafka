@@ -1,0 +1,23 @@
+package com.titan.payment.service;
+
+import java.util.List;
+
+import com.titan.payment.entity.OrderCreatedEntity;
+import com.titan.payment.processor.PaymentProcessor;
+import com.titan.payment.response.PaymentResponse;
+
+public class PaymentService {
+	private final List<PaymentProcessor> processors;
+
+	public PaymentService(List<PaymentProcessor> processors) {
+		this.processors = processors;
+	}
+
+	public PaymentResponse process(OrderCreatedEntity event) {
+
+		PaymentProcessor processor = processors.stream().filter(p -> p.supports(event.getPaymentMethod())).findFirst()
+				.orElseThrow(() -> new IllegalArgumentException("Unsupported payment method: " + event.getPaymentMethod()));
+
+		return processor.processPayment(event);
+	}
+}
