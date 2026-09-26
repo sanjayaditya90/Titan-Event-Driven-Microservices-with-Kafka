@@ -24,6 +24,7 @@ public class NotificationService {
 	}
 
 	public String process(OrderCreatedEvent event) {
+		
 		String eventId = event.getEventId();
 
 		if (notificationProcessedEventRepository.existsById(eventId)) {

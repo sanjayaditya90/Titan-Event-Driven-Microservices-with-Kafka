@@ -12,6 +12,7 @@ public class UpiPaymentProcessor implements PaymentProcessor {
 	public PaymentResponse processPayment(OrderCreatedEvent event) {
 		if (event.getAmount() <= 0) {
 			System.out.println("Amount is " + event.getAmount());
+			new PaymentResponse(event.getOrderNo(), "FAILED");
 			throw new RuntimeException("Invalid payment amount");
 		}
 		System.out.println("Processing UPI payment for Order No : " + event.getOrderNo() + " Amount : " + event.getAmount());

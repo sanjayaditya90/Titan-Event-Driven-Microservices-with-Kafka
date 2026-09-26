@@ -31,6 +31,8 @@ public class OrderService {
 
 	// Titan Order creation
 	public OrderResponse creatOrder(OrderRequest orderRequest) {
+		long start = System.currentTimeMillis();
+
 		OrderEntity entity = createOrderEntity(orderRequest);
 
 		OrderEntity entityResponse = null;
@@ -49,10 +51,14 @@ public class OrderService {
 			kafkaProducerService.writeOrderMessage("order-created", key, data);
 		}
 
+		long end = System.currentTimeMillis();
+
+		System.out.println("Order Service processing time: " + (end - start) + " ms");
+
 		return response;
 	}
 
-	private OrderCreatedEvent createOrderEvent(OrderResponse response,OrderRequest orderRequest) {
+	private OrderCreatedEvent createOrderEvent(OrderResponse response, OrderRequest orderRequest) {
 		OrderCreatedEvent event = new OrderCreatedEvent();
 
 		event.setEventId(UUID.randomUUID().toString());

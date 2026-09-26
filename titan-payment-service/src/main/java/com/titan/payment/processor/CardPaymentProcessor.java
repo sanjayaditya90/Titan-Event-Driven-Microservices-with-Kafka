@@ -11,10 +11,13 @@ public class CardPaymentProcessor implements PaymentProcessor {
 	@Override
 	public PaymentResponse processPayment(OrderCreatedEvent event) {
 		if (event.getAmount() <= 0) {
+			new PaymentResponse(event.getOrderNo(), "FAILED");
 			throw new RuntimeException("Invalid payment amount");
 		}
-		System.out.println("Processing CARD payment for Order No : " + event.getOrderNo() + " Amount : " + event.getAmount());
-		//need to implement the payment gateway part and based on that response should be constructed
+		System.out.println(
+				"Processing CARD payment for Order No : " + event.getOrderNo() + " Amount : " + event.getAmount());
+		// need to implement the payment gateway part and based on that response should
+		// be constructed
 		return new PaymentResponse(event.getOrderNo(), "SUCCESS");
 	}
 

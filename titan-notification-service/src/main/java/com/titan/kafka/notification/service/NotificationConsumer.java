@@ -13,15 +13,16 @@ public class NotificationConsumer {
 
 	private final NotificationService notificationService;
 	private final ObjectMapper objectMapper;
-	
-	
+
 	public NotificationConsumer(NotificationService notificationService, ObjectMapper objectMapper) {
 		this.notificationService = notificationService;
 		this.objectMapper = objectMapper;
 	}
-	
+
 	@KafkaListener(topics = "order-created", groupId = "OS2")
 	public void consumeOrderCreated(String message) {
+		long start = System.currentTimeMillis();
+
 		OrderCreatedEvent event = objToOrderEvent(message);
 
 		System.out.println("-----------------------------------------");
@@ -39,10 +40,15 @@ public class NotificationConsumer {
 		if (response != null) {
 			System.out.println("Notification status: " + response);
 		}
+
+		long end = System.currentTimeMillis();
+
+		System.out.println("Notification Service processing time: " + (end - start) + " ms");
 	}
-	
+
 	@KafkaListener(topics = "payment-success", groupId = "PS1")
 	public void consumePaymentSuccess(String message) {
+		long start = System.currentTimeMillis();
 		OrderCreatedEvent event = objToOrderEvent(message);
 
 		System.out.println("-----------------------------------------");
@@ -63,6 +69,10 @@ public class NotificationConsumer {
 		if (response != null) {
 			System.out.println("Notification status: " + response);
 		}
+
+		long end = System.currentTimeMillis();
+
+		System.out.println("Notification Service processing time: " + (end - start) + " ms");
 	}
 
 	private OrderCreatedEvent objToOrderEvent(String message) {

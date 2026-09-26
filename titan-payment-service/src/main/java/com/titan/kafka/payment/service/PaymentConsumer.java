@@ -23,6 +23,7 @@ public class PaymentConsumer {
 
 	@KafkaListener(topics = "order-created", groupId = "OS1")
 	public void consume(String message) {
+		long start = System.currentTimeMillis();
 
 		OrderCreatedEvent event = objToOrderEvent(message);
 
@@ -39,6 +40,10 @@ public class PaymentConsumer {
 		if (response != null) {
 			System.out.println("Payment status: " + response.getStatus());
 		}
+
+		long end = System.currentTimeMillis();
+
+		System.out.println("Order Service processing time: " + (end - start) + " ms");
 	}
 
 	private OrderCreatedEvent objToOrderEvent(String message) {

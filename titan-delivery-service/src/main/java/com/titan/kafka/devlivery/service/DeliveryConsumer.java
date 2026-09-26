@@ -12,18 +12,20 @@ import tools.jackson.databind.ObjectMapper;
 
 @Service
 public class DeliveryConsumer {
-	
+
 	private final ObjectMapper objectMapper;
 	private final DeliveryService deliveryService;
-	
+
 	public DeliveryConsumer(ObjectMapper objectMapper, DeliveryService deliveryService) {
 		super();
 		this.objectMapper = objectMapper;
 		this.deliveryService = deliveryService;
 	}
 
-	@KafkaListener(topics="payment-success", groupId="PS2")
+	@KafkaListener(topics = "payment-success", groupId = "PS2")
 	public void consumePaymentMessage(String message) {
+		long start = System.currentTimeMillis();
+
 		PaymentCreatedEvent event = objToOrderEvent(message);
 
 		System.out.println("-----------------------------------------");
@@ -32,17 +34,20 @@ public class DeliveryConsumer {
 		System.out.println("Order No : " + event.getOrderNo());
 		System.out.println("Payment Mode : " + event.getPaymentMethod());
 		System.out.println("Amount : " + event.getAmount());
-		System.out.println("Delivery Address : "+event.getDeliveryAddress());
-		System.out.println("Payment Status : "+event.getPaymentStatus());
+		System.out.println("Delivery Address : " + event.getDeliveryAddress());
+		System.out.println("Payment Status : " + event.getPaymentStatus());
 		System.out.println("Message Read from Delivery Service Kafka");
 		System.out.println("-----------------------------------------");
 
 		deliveryService.process(event);
 
+		long end = System.currentTimeMillis();
+
+		System.out.println("Delivery Service processing time: " + (end - start) + " ms");
 	}
 
 	private PaymentCreatedEvent objToOrderEvent(String message) {
 		return objectMapper.readValue(message, PaymentCreatedEvent.class);
 	}
-	
+
 }
